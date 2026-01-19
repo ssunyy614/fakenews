@@ -1,0 +1,445 @@
+
+<!-- saved from url=(0071)https://s0.2mdn.net/sadbundle/11070741132618863561/index.html?ev=01_262 -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <script src="./gsap_3.11.5_min.js.다운로드"></script>
+    <script src="./customease_3.11.5_min.js.다운로드"></script>
+    <!-- <script
+      src="https://s0.2mdn.net/ads/studio/Enabler.js"
+      type="text/javascript"
+    ></script> -->
+    <script type="text/javascript">
+      var clickTag = 'https://www.google.com';
+
+      const dispatchEvent = (target, eventName) => {
+        const element = document.querySelector(`#${target}`);
+        if (!element) return;
+        element.dispatchEvent(new Event(eventName));
+      };
+
+      const handleVisibility = (id, visible, className, targetChild) => {
+        if (className === undefined) {
+          className = id;
+        }
+        const elm = document.querySelector(`#${id}`);
+        elm.style.visibility = visible ? 'visible' : 'hidden';
+        const target = targetChild ? elm.children[0] : elm;
+        if (visible) {
+          target.classList.add(className);
+        } else {
+          target.classList.remove(className);
+        }
+      };
+
+      // Only used for layer timings, as visibility seems to be not working for layer timings
+      const handleTimingVisibility = (id, visible) => {
+        const elm = document.querySelector(`#${id}`);
+        elm.style.opacity = visible ? '1' : '0';
+      };
+
+      /* Video enabler not in use, commented for avoiding initial delay.
+
+      function getVideoUrl(filename) {
+        if (Enabler.isServingInLiveEnvironment()) {
+          const videoUrl = Enabler.getUrl(filename);
+          return videoUrl;
+        } else {
+          return filename;
+        }
+      }
+
+      const initAd = () => {
+        const videos = document.querySelectorAll('video');
+        videos.forEach(video => {
+          const dataUrl = video.getAttribute('data-url');
+          // Check if data-url exists
+          if (dataUrl) {
+            const source = document.createElement('source');
+            source.setAttribute('src', getVideoUrl(dataUrl));
+            video.appendChild(source);
+          }
+        });
+      };
+
+      window.onload = function () {
+        var isInitialized = Enabler.isInitialized();
+        isInitialized
+          ? initAd()
+          : Enabler.addEventListener(studio.events.StudioEvent.INIT, initAd);
+      };
+
+      */
+    </script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      p {
+        margin: 0;
+      }
+
+      #ad-container {
+        position: relative;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      #ad-container::after {
+        content: '';
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        border: 1px solid #ccc;
+        pointer-events: none;
+      }
+
+      .pencil-editor-paragraph {
+        margin: 0;
+      }
+    </style>
+  <meta name="ad.size" content="width=300,height=250"><style>
+        @font-face {
+          font-family: CentraNo2-Book;
+          src: url("assets/fonts/d4fff7bc-a378-4567-bc37-e016fb03d5a9.woff2"),
+        }</style><style>
+        @font-face {
+          font-family: Pretendard-ExtraBold;
+          src: url("assets/fonts/a467d6c8-8391-44fc-9c58-8de6e113fcd0.woff2"),
+        }</style><style>
+        @font-face {
+          font-family: Pretendard-Medium;
+          src: url("assets/fonts/8148c8f7-bea7-43e1-bfa0-a8e02af03517.woff2"),
+        }</style><script type="text/javascript">
+    
+  (function() {
+    var MAX_URL_PARAM_LENGTH = 34;
+    var CLICK_X_URL_KEY = 'nx';
+    var CLICK_Y_URL_KEY = 'ny';
+    var CREATIVE_DIMENSIONS_KEY = 'dim';
+    var AD_URL_PARAM = '&adurl=';
+
+    var relegateNavigation = '';
+    var urlParamMap = {};
+
+    var isNewtonTokenSet = false;
+    var isTurtleXAdClick = false;
+    var reportingIds = {};
+
+    urlParamMap[CLICK_X_URL_KEY] = null;
+    urlParamMap[CLICK_Y_URL_KEY] = null;
+    urlParamMap[CREATIVE_DIMENSIONS_KEY] = null;
+
+    var handleClickTagMessage = function(e) {
+      try {
+        var eventData = JSON.parse(e.data);
+      } catch (err) {
+        return;
+      }
+      if (eventData.isInitClickTag) {
+        if (eventData.clickTags) {
+          for (var i = 0; i < eventData.clickTags.length; i++) {
+            var clkTag = eventData.clickTags[i];
+            window[clkTag.name] = clkTag.url;
+
+            if (clkTag.eTldPlusOne) {
+              eTldPlusOnes[clkTag.url] = clkTag.eTldPlusOne;
+            }
+            if (clkTag.reportingId) {
+              reportingIds[clkTag.url] = clkTag.reportingId;
+            }
+          }
+        } else if (eventData.clickTag) {
+          window.clickTag = eventData.clickTag;
+        }
+        relegateNavigation = eventData.relegateNavigation;
+      }
+      if (isNewtonEnabled(eventData) && !isNewtonTokenSet) {
+        var newtonOt2Token = eventData.newtonOt2Token;
+        enableAttributionReportingApi(newtonOt2Token);
+      }
+      if (eventData.isTurtleXAdClick) {
+        isTurtleXAdClick = true;
+      }
+    };
+
+    var isNewtonEnabled = function(eventData) {
+      return 'newtonOt2Token' in eventData;
+    }
+
+    var enableAttributionReportingApi = function(originTrialToken) {
+      if (/Chrome/.test(window.navigator.userAgent)) {
+        var meta = document.createElement('meta');
+        meta.httpEquiv = 'origin-trial';
+        meta.content = String(originTrialToken);
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        isNewtonTokenSet = true;
+      }
+    };
+
+    var storeClickCoordinates = function(e) {
+      urlParamMap[CLICK_X_URL_KEY] = Math.round(e.clientX);
+      urlParamMap[CLICK_Y_URL_KEY] = Math.round(e.clientY);
+    };
+
+    var getCreativeDimensions = function() {
+      return window.innerWidth + 'x' + window.innerHeight;
+    }
+
+    var getExitClickParams = function(e) {
+      urlParamMap[CREATIVE_DIMENSIONS_KEY] = getCreativeDimensions();
+
+      var exitParams = '';
+      for (var key in urlParamMap) {
+        exitParams += '&' + key + '=';
+        if (urlParamMap[key] !== null) {
+          exitParams += urlParamMap[key];
+        }
+      }
+      return exitParams;
+    }
+
+    var appendExitClickParams = function(url) {
+      var adUrlIndex = url.toLowerCase().indexOf(AD_URL_PARAM);
+      var paramsToBeAdded = getExitClickParams();
+      if (adUrlIndex > -1 && paramsToBeAdded.length <= MAX_URL_PARAM_LENGTH) {
+        url = url.substr(0, adUrlIndex) + paramsToBeAdded +
+          url.substr(adUrlIndex);
+      };
+      return url;
+    };
+
+    if (open.call) {
+      window.open = function(open) {
+        return function(url, name, features) {
+          if (isTurtleXAdClick && !!reportingIds[url]) {
+            var message = {
+              'reportingId': reportingIds[url],
+              'clickX': urlParamMap[CLICK_X_URL_KEY],
+              'clickY': urlParamMap[CLICK_Y_URL_KEY],
+              'creativeDims': getCreativeDimensions()
+              };
+            parent.postMessage(JSON.stringify(message), '*');
+          }
+          url = appendExitClickParams(url);
+          if (relegateNavigation === 'parent') {
+            var message = {'clickTag': url, 'isPostClickTag': true};
+            parent.postMessage(JSON.stringify(message), '*');
+          } else {
+            var args = [url, name];
+            var windowFeatures = '';
+
+            if (features) {
+              windowFeatures = windowFeatures.concat(features);
+            }
+            if (isNewtonTokenSet &&
+                !!document.featurePolicy?.allowedFeatures().includes(
+                  'attribution-reporting')) {
+              if (features) {
+                if (!features.includes('attributionsrc')) {
+                  windowFeatures = windowFeatures.concat(features, ', attributionsrc');
+                }
+              } else {
+                windowFeatures = windowFeatures.concat('attributionsrc');
+              }
+            }
+
+            if (windowFeatures) {
+              args.push(windowFeatures);
+            }
+            open.apply(window,args);
+          }
+        };
+      }(window.open);
+    }
+
+    if (window.addEventListener) {
+      window.addEventListener(
+          'message', handleClickTagMessage, false);
+      window.addEventListener('mousedown', storeClickCoordinates, true);
+    } else {
+      window.attachEvent('onmessage', handleClickTagMessage);
+    }
+  })();
+    
+  </script><meta http-equiv="origin-trial" content="A4AD7vbM2W0e5fHylDM4fFrsUvtmQ95U+ZVrdOdh3fgH0l0e7RVkAsZryrSQIRhPVvmC60wTlh880eDyo+HpXQAAAABueyJvcmlnaW4iOiJodHRwczovL3MwLjJtZG4ubmV0OjQ0MyIsImZlYXR1cmUiOiJQcml2YWN5U2FuZGJveEFkc0FQSXMiLCJleHBpcnkiOjE2OTUxNjc5OTksImlzVGhpcmRQYXJ0eSI6dHJ1ZX0="></head>
+  <body>
+    <a href="javascript:void(window.open(clickTag))">
+      <div id="ad-container" style="overflow: hidden; position: relative; width: 300px; height: 250px;"><div id="a034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="background-color: rgb(255, 255, 255); height: 100%; width: 100%; position: absolute; overflow: hidden; visibility: visible;" class="a034f5d3f-24cd-4940-89ff-3ba0d29a3311"><div id="timing-wrapper-7KW4x9Y3-XlojwQbp3xjX_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="opacity: 1;"><div style="transform-origin: top left; position: absolute; width: 1444px; top: -18.6185072px; left: 16.6074563px; transform: rotate(0deg) scale(0.2777777777777778, 0.2777777777777778); height: 1032px; opacity: 1;"><div style="width: 1444px; height: 1032px; position: absolute; opacity: 0; z-index: 1000; pointer-events: none; background-color: transparent;" class="overlay-container-container"></div><div><div id="a7KW4x9Y3-XlojwQbp3xjX_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="height: 100%; display: flex; justify-content: center; align-items: center; visibility: visible; translate: none; rotate: none; scale: none; transform: scale(1.2, 1.2);" class="a7KW4x9Y3-XlojwQbp3xjX_034f5d3f-24cd-4940-89ff-3ba0d29a3311"><div style="overflow: hidden; height: 100%; width: 100%;"><div style="display: inline-block; height: 100%; width: 100%; transform: translate(0px, 0px) scale(1, 1);"><img src="./resized_a971bae5_1444x1032_cropped_0_0_a81a8040-81c1-4b56-8368-d2b6e147e508.jpeg" style="object-fit: none;"></div></div></div></div></div></div><div id="timing-wrapper-42601_224222_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="opacity: 1;"><div style="transform-origin: top left; position: absolute; width: 1343px; top: -3.0947841px; left: -26.5400852px; transform: rotate(0deg) scale(0.2777777777777778, 0.2777777777777778); height: 1007px; mix-blend-mode: normal; isolation: isolate;"><div style="width: 1343px; height: 1007px; position: absolute; opacity: 0; z-index: 1000; pointer-events: none; background-color: transparent;" class="overlay-container-container"></div><div><div id="a42601_224222_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="height: 100%; display: flex; justify-content: center; align-items: center; visibility: visible; translate: none; rotate: none; scale: none; transform: scale(1.2, 1.2); opacity: 0;" class="a42601_224222_034f5d3f-24cd-4940-89ff-3ba0d29a3311"><div style="overflow: hidden; height: 100%; width: 100%;"><div style="display: inline-block; height: 100%; width: 100%; transform: translate(0px, 0px) scale(1, 1);"><img src="./resized_2ddb2f74_1343x1007_cropped_0_1_30a7d68a-134b-4a1a-a594-2b196e642e3b.jpeg" style="object-fit: none;"></div></div></div></div></div></div><div id="timing-wrapper-b4xSlKGlNG6x_mgyIq9d8_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="opacity: 1;"><div style="transform-origin: top left; position: absolute; width: 152px; top: -250px; left: -2px; transform: rotate(0deg) scale(1, 1); height: 246px;"><div><div id="ab4xSlKGlNG6x_mgyIq9d8_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="height: 100%; display: flex; justify-content: center; align-items: center; visibility: visible; translate: none; rotate: none; scale: none; transform: translate(0px, 280px);" class="ab4xSlKGlNG6x_mgyIq9d8_034f5d3f-24cd-4940-89ff-3ba0d29a3311"><div style="position: absolute; top: 0px; left: 0px;"><svg width="152" height="246" style="" overflow="visible"><rect width="100%" height="100%" fill="rgba(239, 51, 70, 1)" rx="21.203999999999997px"></rect></svg></div></div></div></div></div><div id="timing-wrapper-G8gDBGx7EmZlodJGAivL3_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="opacity: 1;"><div style="transform-origin: top left; position: absolute; width: 169px; top: -80px; left: -19px; transform: rotate(0deg) scale(1, 1); height: 79px;"><div><div id="aG8gDBGx7EmZlodJGAivL3_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="height: 100%; display: flex; justify-content: center; align-items: center; visibility: visible; translate: none; rotate: none; scale: none; transform: translate(0px, 65px);" class="aG8gDBGx7EmZlodJGAivL3_034f5d3f-24cd-4940-89ff-3ba0d29a3311"><div style="position: absolute; top: 0px; left: 0px;"><svg width="169" height="79" style="" overflow="visible"><rect width="100%" height="100%" fill="rgba(255, 206, 207, 1)" rx="11.020499999999998px"></rect></svg></div></div></div></div></div><div id="timing-wrapper-QsEPE8g70EinlR3CALr5K_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="opacity: 1;"><div style="transform-origin: top left; position: absolute; width: 1470px; top: -18px; left: 14.758178824957596px; transform: rotate(0deg) scale(0.08231292517006802, 0.08231292517006802); height: 194px; opacity: 1;"><div class="overlay-container-container"></div><div><div id="aQsEPE8g70EinlR3CALr5K_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="height: 100%; display: flex; justify-content: center; align-items: center; visibility: visible; translate: none; rotate: none; scale: none; transform: translate(0px, 552.769px);" class="aQsEPE8g70EinlR3CALr5K_034f5d3f-24cd-4940-89ff-3ba0d29a3311"><div style="overflow: hidden; height: 100%; width: 100%;"><div style="display: inline-block; height: 100%; width: 100%; transform: translate(0px, 0px) scale(1, 1);"><img src="./0_4_4f05f8c8-47c7-4189-8865-bc1eb228d305.png" style="object-fit: none;"></div></div></div></div></div></div><div id="timing-wrapper-_1WNNYWQJAuvFyz2RrFd4_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="opacity: 1;"><div style="transform-origin: top left; position: absolute; width: 78px; top: 210px; left: 36.2581788249576px; transform: rotate(0deg) scale(1, 1); height: 23px;"><div><div id="a_1WNNYWQJAuvFyz2RrFd4_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="height: 100%; display: flex; justify-content: center; align-items: center; visibility: visible; translate: none; rotate: none; scale: none; transform: translate(0px, -18px); opacity: 1;" class="a_1WNNYWQJAuvFyz2RrFd4_034f5d3f-24cd-4940-89ff-3ba0d29a3311"><div style="position: absolute; top: 0px; left: 0px;"><svg width="78" height="23" style="" overflow="visible"><rect width="100%" height="100%" fill="rgba(25, 30, 59, 1)" rx="11.5px"></rect></svg></div></div></div></div></div><div id="timing-wrapper-HkQeCwaMj3jqpTsqXpD0E_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="opacity: 1;"><div style="transform-origin: top left; position: absolute; width: 73px; top: 213px; left: 38px; transform: rotate(0deg) scale(1, 1); height: 15px;"><div><div id="aHkQeCwaMj3jqpTsqXpD0E_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="height: 100%; display: flex; justify-content: center; align-items: center; visibility: visible; translate: none; rotate: none; scale: none; transform: translate(0px, -18px); opacity: 1;" class="aHkQeCwaMj3jqpTsqXpD0E_034f5d3f-24cd-4940-89ff-3ba0d29a3311"><div style="font-size: 12px; font-family: Pretendard-Medium; line-height: 1; letter-spacing: 0.1px; text-align: center; color: rgb(255, 255, 255); height: 100%; width: 100%; display: flex; align-items: center; justify-content: center;"><div><div><span id="text-span-HkQeCwaMj3jqpTsqXpD0E" style="display: inline;">지금 예약</span></div></div></div></div></div></div></div><div id="timing-wrapper-42601_224300_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="opacity: 1;"><div style="transform-origin: top left; position: absolute; width: 123px; top: 81px; left: 13px; transform: rotate(0deg) scale(1, 1); height: 92px; mix-blend-mode: normal; isolation: isolate;"><div><div id="a42601_224300_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="height: 100%; display: flex; justify-content: center; align-items: center; visibility: visible; opacity: 0;" class="a42601_224300_034f5d3f-24cd-4940-89ff-3ba0d29a3311"><div style="font-size: 32px; font-family: Pretendard-ExtraBold; line-height: 1; letter-spacing: 0px; text-decoration: none; text-align: center; color: rgb(255, 255, 255); height: 100%; width: 100%; font-style: normal; font-weight: 500; display: flex; align-items: center; justify-content: center;"><div><div><span id="text-span-42601_224300" style="display: inline-grid;"><p class="pencil-editor-paragraph" dir="ltr"><span style="white-space: pre-wrap;">설날 특가 상품</span></p></span></div></div></div></div></div></div></div><div id="timing-wrapper-hiTr1xJVR2pdzRhKB-El9_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="opacity: 1;"><div style="transform-origin: top left; position: absolute; width: 129px; top: 77.7573656px; left: 10.7573656px; transform: rotate(0deg) scale(1, 1); height: 103px; mix-blend-mode: normal; isolation: isolate;"><div><div id="ahiTr1xJVR2pdzRhKB-El9_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="height: 100%; display: flex; justify-content: center; align-items: center; visibility: visible; opacity: 1;" class="ahiTr1xJVR2pdzRhKB-El9_034f5d3f-24cd-4940-89ff-3ba0d29a3311"><div style="font-size: 20px; font-family: Pretendard-ExtraBold; line-height: 1; letter-spacing: 0px; text-decoration: none; text-align: center; color: rgb(255, 255, 255); height: 100%; width: 100%; font-style: normal; font-weight: 500; display: flex; align-items: center; justify-content: center;"><div><div><span id="text-span-hiTr1xJVR2pdzRhKB-El9" style="display: inline-grid;"><p class="pencil-editor-paragraph" dir="ltr"><span style="white-space: pre-wrap;">회원 25% 이상 할인</span></p></span></div></div></div></div></div></div></div><div id="timing-wrapper-x9bbUFscgr04uX76l18Qq_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="opacity: 1;"><div style="transform-origin: top left; position: absolute; width: 130px; top: 239px; left: 10px; transform: rotate(0deg) scale(1, 1); height: 8px;"><div><div id="ax9bbUFscgr04uX76l18Qq_034f5d3f-24cd-4940-89ff-3ba0d29a3311" style="height: 100%; display: flex; justify-content: center; align-items: center; visibility: visible; opacity: 1;" class="ax9bbUFscgr04uX76l18Qq_034f5d3f-24cd-4940-89ff-3ba0d29a3311"><div style="font-size: 5px; font-family: CentraNo2-Book; line-height: 1.6; letter-spacing: 0.5px; text-align: center; color: rgb(255, 255, 255); height: 100%; width: 100%; font-weight: 700; display: flex; align-items: center; justify-content: center;"><div><div><span id="text-span-x9bbUFscgr04uX76l18Qq" style="display: inline;">이용약관이 적용됩니다.</span></div></div></div></div></div></div></div></div><script>
+    const tl = gsap.timeline({ 
+      paused: true,
+    });
+    
+          document.addEventListener('DOMContentLoaded', () => {
+            tl.play();
+          });
+        
+
+    gsap.registerPlugin(CustomEase);
+
+    // Define custom eases
+    CustomEase.create("linear", "0, 0, 1, 1"); 
+    CustomEase.create("easeInQuad", "0.55, 0.085, 0.68, 0.53");
+    CustomEase.create("easeOutQuad", "0.25, 0.46, 0.45, 0.94");
+    CustomEase.create("easeInOutQuad", "0.455, 0.03, 0.515, 0.955");
+    CustomEase.create("cubicBezier1", "0.25, 1, 0.30, 1");
+    CustomEase.create("cubicBezierFade", "0.645, 0.045, 0.355, 1");
+    CustomEase.create("cubicBezierPop", "0.215, 0.61, 0.355, 1");
+
+    
+  ;tl.call(()=>{
+      handleVisibility('a7KW4x9Y3-XlojwQbp3xjX_034f5d3f-24cd-4940-89ff-3ba0d29a3311', true, 'a7KW4x9Y3-XlojwQbp3xjX_034f5d3f-24cd-4940-89ff-3ba0d29a3311');
+    },null,0)
+    .to('#a7KW4x9Y3-XlojwQbp3xjX_034f5d3f-24cd-4940-89ff-3ba0d29a3311',{
+      keyframes: {"0%":{"scaleX":1,"scaleY":1},"16.27906976744186%":{"scaleX":1,"scaleY":1},"88.3720930232558%":{"scaleX":1.2,"scaleY":1.2},"100%":{"scaleX":1.2,"scaleY":1.2}},
+      duration: 5.733333333333333,
+        onStart: () => {
+         dispatchEvent('a7KW4x9Y3-XlojwQbp3xjX_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationstart');
+      },
+      onComplete: () => {
+        dispatchEvent('a7KW4x9Y3-XlojwQbp3xjX_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationend');
+      }
+    }, 0
+    );tl.call(()=>{
+      handleVisibility('a42601_224222_034f5d3f-24cd-4940-89ff-3ba0d29a3311', true, 'a42601_224222_034f5d3f-24cd-4940-89ff-3ba0d29a3311');
+    },null,0)
+    .to('#a42601_224222_034f5d3f-24cd-4940-89ff-3ba0d29a3311',{
+      keyframes: {"0%":{"scaleX":1,"scaleY":1,"opacity":1},"72.09302325581397%":{"scaleX":1.2,"scaleY":1.2},"100%":{"scaleX":1.2,"scaleY":1.2,"opacity":0},"51.162790697674424%":{"opacity":1},"55.23255813953488%":{"opacity":0}},
+      duration: 5.733333333333333,
+        onStart: () => {
+         dispatchEvent('a42601_224222_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationstart');
+      },
+      onComplete: () => {
+        dispatchEvent('a42601_224222_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationend');
+      }
+    }, 0
+    );tl.call(()=>{
+      handleVisibility('ab4xSlKGlNG6x_mgyIq9d8_034f5d3f-24cd-4940-89ff-3ba0d29a3311', true, 'ab4xSlKGlNG6x_mgyIq9d8_034f5d3f-24cd-4940-89ff-3ba0d29a3311');
+    },null,0)
+    .to('#ab4xSlKGlNG6x_mgyIq9d8_034f5d3f-24cd-4940-89ff-3ba0d29a3311',{
+      keyframes: {"0%":{"x":0,"y":0},"3.4883720930232567%":{"x":0,"y":0},"13.953488372093023%":{"x":0,"y":280},"100%":{"x":0,"y":280}},
+      duration: 5.733333333333333,
+        onStart: () => {
+         dispatchEvent('ab4xSlKGlNG6x_mgyIq9d8_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationstart');
+      },
+      onComplete: () => {
+        dispatchEvent('ab4xSlKGlNG6x_mgyIq9d8_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationend');
+      }
+    }, 0
+    );tl.call(()=>{
+      handleVisibility('aG8gDBGx7EmZlodJGAivL3_034f5d3f-24cd-4940-89ff-3ba0d29a3311', true, 'aG8gDBGx7EmZlodJGAivL3_034f5d3f-24cd-4940-89ff-3ba0d29a3311');
+    },null,0)
+    .to('#aG8gDBGx7EmZlodJGAivL3_034f5d3f-24cd-4940-89ff-3ba0d29a3311',{
+      keyframes: {"0%":{"x":0,"y":0},"1.744186046511628%":{"x":0,"y":0},"6.976744186046512%":{"x":0,"y":65},"100%":{"x":0,"y":65}},
+      duration: 5.733333333333333,
+        onStart: () => {
+         dispatchEvent('aG8gDBGx7EmZlodJGAivL3_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationstart');
+      },
+      onComplete: () => {
+        dispatchEvent('aG8gDBGx7EmZlodJGAivL3_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationend');
+      }
+    }, 0
+    );tl.call(()=>{
+      handleVisibility('aQsEPE8g70EinlR3CALr5K_034f5d3f-24cd-4940-89ff-3ba0d29a3311', true, 'aQsEPE8g70EinlR3CALr5K_034f5d3f-24cd-4940-89ff-3ba0d29a3311');
+    },null,0)
+    .to('#aQsEPE8g70EinlR3CALr5K_034f5d3f-24cd-4940-89ff-3ba0d29a3311',{
+      keyframes: {"0%":{"x":0,"y":0},"1.744186046511628%":{"x":0,"y":0},"6.976744186046512%":{"x":0,"y":553.238738279738},"48.83720930232558%":{"x":0,"y":553.238738279738},"52.32558139534884%":{"x":0,"y":656.0330578512397},"55.81395348837209%":{"x":0,"y":552.7685950413223},"100%":{"x":0,"y":552.7685950413223}},
+      duration: 5.733333333333333,
+        onStart: () => {
+         dispatchEvent('aQsEPE8g70EinlR3CALr5K_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationstart');
+      },
+      onComplete: () => {
+        dispatchEvent('aQsEPE8g70EinlR3CALr5K_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationend');
+      }
+    }, 0
+    );tl.call(()=>{
+      handleVisibility('a_1WNNYWQJAuvFyz2RrFd4_034f5d3f-24cd-4940-89ff-3ba0d29a3311', true, 'a_1WNNYWQJAuvFyz2RrFd4_034f5d3f-24cd-4940-89ff-3ba0d29a3311');
+    },null,0)
+    .to('#a_1WNNYWQJAuvFyz2RrFd4_034f5d3f-24cd-4940-89ff-3ba0d29a3311',{
+      keyframes: {"0%":{"x":0,"y":0,"scaleX":1,"scaleY":1,"opacity":0},"13.372093023255813%":{"x":0,"y":0,"opacity":0},"18.6046511627907%":{"x":0,"y":-18,"opacity":1},"100%":{"x":0,"y":-18,"scaleX":1,"scaleY":1,"opacity":1},"27.32558139534884%":{"scaleX":1,"scaleY":1},"30.813953488372093%":{"scaleX":1.1,"scaleY":1.1},"34.30232558139535%":{"scaleX":1,"scaleY":1}},
+      duration: 5.733333333333333,
+        onStart: () => {
+         dispatchEvent('a_1WNNYWQJAuvFyz2RrFd4_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationstart');
+      },
+      onComplete: () => {
+        dispatchEvent('a_1WNNYWQJAuvFyz2RrFd4_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationend');
+      }
+    }, 0
+    );tl.call(()=>{
+      handleVisibility('aHkQeCwaMj3jqpTsqXpD0E_034f5d3f-24cd-4940-89ff-3ba0d29a3311', true, 'aHkQeCwaMj3jqpTsqXpD0E_034f5d3f-24cd-4940-89ff-3ba0d29a3311');
+    },null,0)
+    .to('#aHkQeCwaMj3jqpTsqXpD0E_034f5d3f-24cd-4940-89ff-3ba0d29a3311',{
+      keyframes: {"0%":{"x":0,"y":0,"opacity":0},"13.372093023255813%":{"x":0,"y":0,"opacity":0},"18.6046511627907%":{"x":0,"y":-18,"opacity":1},"100%":{"x":0,"y":-18,"opacity":1}},
+      duration: 5.733333333333333,
+        onStart: () => {
+         dispatchEvent('aHkQeCwaMj3jqpTsqXpD0E_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationstart');
+      },
+      onComplete: () => {
+        dispatchEvent('aHkQeCwaMj3jqpTsqXpD0E_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationend');
+      }
+    }, 0
+    );tl.call(()=>{
+      handleVisibility('a42601_224300_034f5d3f-24cd-4940-89ff-3ba0d29a3311', true, 'a42601_224300_034f5d3f-24cd-4940-89ff-3ba0d29a3311');
+    },null,0)
+    .to('#a42601_224300_034f5d3f-24cd-4940-89ff-3ba0d29a3311',{
+      keyframes: {"0%":{"opacity":0},"11.627906976744189%":{"opacity":0},"17.441860465116278%":{"opacity":1},"50%":{"opacity":1},"53.48837209302326%":{"opacity":0},"100%":{"opacity":0}},
+      duration: 5.733333333333333,
+        onStart: () => {
+         dispatchEvent('a42601_224300_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationstart');
+      },
+      onComplete: () => {
+        dispatchEvent('a42601_224300_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationend');
+      }
+    }, 0
+    );tl.call(()=>{
+      handleVisibility('ahiTr1xJVR2pdzRhKB-El9_034f5d3f-24cd-4940-89ff-3ba0d29a3311', true, 'ahiTr1xJVR2pdzRhKB-El9_034f5d3f-24cd-4940-89ff-3ba0d29a3311');
+    },null,0)
+    .to('#ahiTr1xJVR2pdzRhKB-El9_034f5d3f-24cd-4940-89ff-3ba0d29a3311',{
+      keyframes: {"0%":{"opacity":0},"53.48837209302326%":{"opacity":0},"56.97674418604651%":{"opacity":1},"100%":{"opacity":1}},
+      duration: 5.733333333333333,
+        onStart: () => {
+         dispatchEvent('ahiTr1xJVR2pdzRhKB-El9_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationstart');
+      },
+      onComplete: () => {
+        dispatchEvent('ahiTr1xJVR2pdzRhKB-El9_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationend');
+      }
+    }, 0
+    );tl.call(()=>{
+      handleVisibility('ax9bbUFscgr04uX76l18Qq_034f5d3f-24cd-4940-89ff-3ba0d29a3311', true, 'ax9bbUFscgr04uX76l18Qq_034f5d3f-24cd-4940-89ff-3ba0d29a3311');
+    },null,0)
+    .to('#ax9bbUFscgr04uX76l18Qq_034f5d3f-24cd-4940-89ff-3ba0d29a3311',{
+      keyframes: {"0%":{"opacity":0},"13.372093023255815%":{"opacity":0},"17.441860465116278%":{"opacity":1},"100%":{"opacity":1}},
+      duration: 5.733333333333333,
+        onStart: () => {
+         dispatchEvent('ax9bbUFscgr04uX76l18Qq_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationstart');
+      },
+      onComplete: () => {
+        dispatchEvent('ax9bbUFscgr04uX76l18Qq_034f5d3f-24cd-4940-89ff-3ba0d29a3311', 'animationend');
+      }
+    }, 0
+    );
+      tl.call(() => {
+        handleVisibility('a034f5d3f-24cd-4940-89ff-3ba0d29a3311', true);
+      }, null, 0)
+    ;
+    tl.call(() => {
+      const elements = document.querySelectorAll('div.overlay-container-container[data-background]');
+      elements.forEach(element => {
+        const dataBackground = element.getAttribute('data-background');
+        if (dataBackground) {
+          element.style.background = dataBackground;
+          element.removeAttribute('data-background');
+        }
+      });
+    }, null, 0);
+  </script><style></style></div>
+    </a>
+  
+
+</body></html>

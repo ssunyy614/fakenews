@@ -1,0 +1,41 @@
+/**
+ * Created by qmmp on 2017-05-17.
+ */
+/* GA Event Listener */
+(function (ga, $) {
+    $(document).off('click').on('click', 'a', function (e) {
+        /* 구글 애널리틱스 처리 */
+        var tg = $(e.currentTarget), category = tg.attr('data-category'), label = tg.attr('data-label');
+        if (typeof(category) == 'undefined') return; // defined 안된 category는 return
+        ga('send', 'event', category, 'click', label);
+    });
+})(ga, jQuery);
+
+
+
+function sendMail() {
+    const url = $("meta[property='og:url']").attr("content");
+    const title = $("meta[property='og:title']").attr("content");
+
+    window.open('mailto:someone@example.com' + '?Subject=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(url));
+}
+
+function sendPrint() {
+    const printUrl = "https://www.mk.co.kr/print/" + contentId;
+    window.open(printUrl,"_blank", "width=800, height=700");
+}
+
+var sendThis = function (sns_name) {
+    if (sns_name === 'facebook') {
+        const url = $("meta[property='og:url']").attr("content");
+        const shareUrl = "https://www.facebook.com/sharer.php?u=" + url
+
+        window.open(shareUrl, "", "width=900,height=450,scrollbar=yes,menubars=no");
+    } else if (sns_name === 'twitter') {
+        const title = $("meta[property='twitter:title']").attr("content");
+        const url = $("meta[property='og:url']").attr("content");
+        const shareUrl = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(title+"\n") + "+" + encodeURIComponent(url);
+
+        window.open(shareUrl, "", "width=900,height=450,scrollbar=yes,menubars=no");
+    }
+}

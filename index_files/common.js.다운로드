@@ -1,0 +1,164 @@
+String.prototype.format = function () {
+    var args = arguments;
+    return this.replace(/\{\{|\}\}|\{(\d+)\}/g, function (m, n) {
+        if (m === "{{") { return "{"; }
+        if (m === "}}") { return "}"; }
+        return args[n];
+    });
+};
+
+//로그인
+function loginMember() {
+    var currentLocation = encodeURIComponent(location.href);
+    location.href = "https://account.mk.co.kr/p/login?successUrl=" + currentLocation;
+
+}
+
+//회원가입
+function registMember() {
+    location.href = "https://account.mk.co.kr/p/join/";
+}
+
+//로그아웃
+function logoutMember() {
+    location.href = "https://account.mk.co.kr/p/loginOut?nextUrl=" + (arguments.length === 0 ? document.location : arguments[0]);
+}
+
+//정보수정
+function modifyMember() { location.href = 'https://account.mk.co.kr/p/myinfo';}
+
+/**
+ * Created by qmmp on 2017-05-19.
+ */
+$().ready(function () {
+    // main right ranking
+    var rankdiv = $('.ranktab1 div, .m_ranking1 div');
+    rankdiv.off('click').on('click', function (e) {
+        rankdiv.find('a').attr('class', 'off');
+        $(this).find('a').attr('class', 'on');
+        $('div[class*=ranking1layer]').hide();
+        $('.ranking1layer' + $(this).data('flag')).show();
+        e.preventDefault();
+        e.stopPropagation();
+    });
+    var rankdiv2 = $('.ranktab2 div, .m_ranking2 div');
+    rankdiv2.off('click').on('click', function (e) {
+        rankdiv2.find('a').attr('class', 'off');
+        $(this).find('a').attr('class', 'on');
+        $('div[class*=ranking2layer]').hide();
+        $('.ranking2layer' + $(this).data('flag')).show();
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    var rankdiv3 = $('.ranktab3 div, .m_ranking3 div');
+    rankdiv3.off('click').on('click', function (e) {
+        rankdiv3.find('a').attr('class', 'off');
+        $(this).find('a').attr('class', 'on');
+        $('div[class*=ranking1layer]').hide();
+        $('.ranking1layer' + $(this).data('flag')).show();
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    //setMainItems();
+});
+
+
+function setMainItems() {
+    $.getJSON('../api/mainboardList.php', {}).done(function (data) {
+        setItmes(data.BESTLIST, '#best_board');
+        setItmes(data.FREELIST, '#free_board');
+        setItmes(data.BILLIARDLIST, '#billiard_board');
+        setItmes(data.REVIEWLIST, '#review_board');
+        setItmes(data.GAMELIST, '#game_board');
+        setItmes(data.MARKETLIST, '#market_board');
+    }); //end GetJson
+
+    function setItmes(list, id) {
+
+        var path = 'community';
+        var linkUrl = '//mkbn.mk.co.kr/{0}/view.php?BCode={1}&BoardIdx={2}&Page=1';
+
+        switch (id) {
+            case '#game_board':
+                path = 'competition';
+                break;
+            case '#market_board':
+                path = 'market';
+                break;
+            case '#best_board':
+            case '#free_board':
+            default:
+                path = 'community';
+                break;
+        }
+
+        var $div_li = $(id + ' li');
+        var index = 0;
+        $.each(list, function (iPos, item) {
+            if($div_li.length > index) {
+                if (item.FirstSubject != null) {
+                    $div_li.eq(index).find('a').attr('href', linkUrl.format(path, item.BCode, item.BoardIdx)).text('[' + item.FirstSubject + '] ' + item.Subject);
+                } else {
+                    $div_li.eq(index).find('a').attr('href', linkUrl.format(path, item.BCode, item.BoardIdx)).text(item.Subject);
+                }
+
+                if (item.reply_cnt > 0) {
+                    $div_li.eq(index).append('<span>' + item.reply_cnt + '</span>');
+                }
+            }
+            index++;
+        });
+    }
+}
+
+
+// 쿠키값 가져오기
+var getCookie = function (name) {
+    var nameOfCookie = name + '=';
+    var x = 0;
+    while (x <= document.cookie.length) {
+        var y = (x + nameOfCookie.length);
+        if (document.cookie.substring(x, y) == nameOfCookie) {
+            if ((endOfCookie = document.cookie.indexOf(';', y)) == -1)
+                endOfCookie = document.cookie.length;
+            return unescape(document.cookie.substring(y, endOfCookie));
+        }
+        x = document.cookie.indexOf(' ', x) + 1;
+        if (x == 0) break;
+    }
+    return '';
+}
+
+// 쿠키값 세팅
+var setCookie = function (name, value, expiredays) {
+    var todayDate = new Date();
+    todayDate.setDate(todayDate.getDate() + expiredays);
+    document.cookie = name + "=" + escape(value) + "; path=/; expires=" + todayDate.toGMTString() + ";";
+}
+
+//모바일 페이지로 강제 이동
+console.log(getCookie("pcView"));
+if (getCookie("pcView") != 1) {
+    var mobileKeyWords = new Array('iPhone', 'iPod', 'BlackBerry', 'Android',
+        'Windows CE', 'Windows CE;', 'LG', 'SAMSUNG',
+        'MOT', 'SonyEricsson', 'Mobile', 'Symbian',
+        'Opera Mobi', 'Opera Mini', 'IEmobile');
+    console.log(window.location.hostname);
+    if(window.location.hostname === "mkbn.mk.co.kr" || window.location.hostname === "stg-mkbn.mk.co.kr") {
+        for (var word in mobileKeyWords) {
+            if (navigator.userAgent.match(mobileKeyWords[word]) != null) {
+                var loc = document.location.href;
+
+                var change_url = loc.replace("mkbn.mk.co.kr/", "mkbn.mk.co.kr/m/");
+                if (!loc.includes("mkbn.mk.co.kr/m")) {
+                    document.cookie = 'ga_referrer=' + document.referrer + '; domain=.mk.co.kr; max-age=30' // ga_referrer 쿠키에 리퍼러 값 임시 저장
+                    document.location.href = change_url;
+                }
+                //console.log(change_url);
+                break;
+            }
+        }
+    }
+}
